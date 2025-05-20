@@ -3,6 +3,7 @@ import { Fragment } from "react";
 import matter from "gray-matter";
 import { sans } from "../fonts";
 import { MDXRemote } from "next-mdx-remote-client/rsc";
+import { remarkMdxEvalCodeBlock } from "./mdx";
 
 export default async function PostPage({ params }) {
   const { slug } = await params;
@@ -26,7 +27,12 @@ export default async function PostPage({ params }) {
         </p>
         <div>
           <Wrapper>
-            <MDXRemote source={content} components={{}} options={{}} />
+            <MDXRemote source={content} components={{}} options={{
+              mdxOptions: {
+                useDynamicImport: true,
+                remarkPlugins: [remarkMdxEvalCodeBlock],
+              }
+            }} />
           </Wrapper>
         </div>
       </article>
