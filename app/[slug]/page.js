@@ -4,6 +4,7 @@ import matter from "gray-matter";
 import { sans } from "../fonts";
 import { MDXRemote } from "next-mdx-remote-client/rsc";
 import { remarkMdxEvalCodeBlock } from "./mdx";
+import Link from "../Link";
 
 export default async function PostPage({ params }) {
   const { slug } = await params;
@@ -12,7 +13,16 @@ export default async function PostPage({ params }) {
 
   const { content, data } = matter(file);
 
-  let Wrapper = Fragment;
+  let postComponents = {};
+  try {
+    postComponents = await import("../../public/" + slug + "/components.js");
+  } catch (e) {
+    if (!e || e.code !== "MODULE_NOT_FOUND") {
+      throw e;
+    }
+  }
+
+  let Wrapper = postComponents.Wrapper ?? Fragment;
 
   return (
     <>
@@ -27,12 +37,26 @@ export default async function PostPage({ params }) {
         </p>
         <div>
           <Wrapper>
-            <MDXRemote source={content} components={{}} options={{
-              mdxOptions: {
-                useDynamicImport: true,
-                remarkPlugins: [remarkMdxEvalCodeBlock],
-              }
-            }} />
+            <MDXRemote
+              source={content}
+              components={{
+                a: Link,
+                img: ({ src, ...rest }) => {
+                  if (src && !/^https?:\/\//.test(src)) {
+                    // https://github.com/gaearon/overreacted.io/issues/827
+                    src = `/${slug}/${src}`;
+                  }
+                  return <img src={src} {...rest} />;
+                },
+                ...postComponents,
+              }}
+              options={{
+                mdxOptions: {
+                  useDynamicImport: true,
+                  remarkPlugins: [remarkMdxEvalCodeBlock],
+                },
+              }}
+            />
           </Wrapper>
         </div>
       </article>

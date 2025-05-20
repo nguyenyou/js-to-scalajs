@@ -11,3 +11,24 @@ Welcome to Scala.js
   Hello, <i>Alice</i>!
 </p>
 ```
+
+```js
+import Bar from "mod.js"
+```
+
+```scala
+@js.native
+@JSImport("mod.js", JSImport.Default)
+object Bar extends js.Object
+```
+
+
+```js
+<Counter />
+```
+
+```js eval
+<p>
+  <Counter />
+</p>
+```
